@@ -49,29 +49,46 @@ class _MyHomePageState extends State<MyHomePage> {
     double zero = 0.0;
 
     String result = "";
+    BigDecimal hundred = BigDecimal.fromBigInt(BigInt.from(100));
 
     for (int i = 0; i <= 4; i++) {
       if (i > n) {
         break;
       }
       BigDecimal percent = calculator(n, r, i);
-      double pp = percent.toDouble();
+
+      percent *= hundred;
+      double pp = makeDouble(percent.toString());
+
+      // print("percent : " + percent.toString());
+      // print("pp " + pp.toString());
       if (i == 0) {
         zero = pp;
       }
       if (i > 0) {
         sum += pp;
       }
-      result +=
-          i.toString() + " 번 나올 확률 " + (pp * 100).toStringAsFixed(3) + "%";
+      result += i.toString() + " 번 나올 확률 " + pp.toStringAsFixed(3) + "%";
       result += "\n";
     }
-    remain -= sum * 100;
-    remain -= zero * 100;
+    remain -= sum;
+    remain -= zero;
 
     result += "5 번 이상 확률 합 : " + (remain).toStringAsFixed(3) + "%" + "\n";
-    result += "1 번 이상 확률 합 : " + (sum * 100 + remain).toStringAsFixed(3) + "%";
+    result += "1 번 이상 확률 합 : " + (sum + remain).toStringAsFixed(3) + "%";
     outputController.text = result;
+  }
+
+  //BigDecimal => double 변환시 너무 큰 값은 변환이 안되기에
+  //String으로 변환 후 자릿수를 잘라 처리한다.
+  double makeDouble(String str) {
+    print("str : " + str);
+    int index = str.indexOf(".");
+    String head = str.substring(0, index);
+    String tail = str.substring(index + 1, index + 4);
+
+    double result = double.parse(head + "." + tail);
+    return result;
   }
 
   //계산
