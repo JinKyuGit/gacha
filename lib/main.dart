@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -34,18 +34,21 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final perCentController = TextEditingController();
   final countController = TextEditingController();
+  final outputController = TextEditingController();
 
   final ButtonStyle style =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
   //클릭
   void clickEvent() {
-    double r = double.parse(perCentController.text);
+    double r = double.parse(perCentController.text) * 0.01;
     int n = int.parse(countController.text);
 
     double sum = 0.0;
-    double remain = 0.0;
+    double remain = 100.0;
     double zero = 0.0;
+
+    String result = "";
 
     for (int i = 0; i <= 4; i++) {
       if (i > n) {
@@ -59,20 +62,26 @@ class _MyHomePageState extends State<MyHomePage> {
       if (i > 0) {
         sum += pp;
       }
-      print(i.toString() + " 번 나올 확률 " + percent.toDouble().toString());
+      result +=
+          i.toString() + " 번 나올 확률 " + (pp * 100).toStringAsFixed(3) + "%";
+      result += "\n";
     }
-    remain = 100.0 - sum - zero;
-    print("0번 : " + zero.toString());
-    print("5번 이상 : " + remain.toString());
+    remain -= sum * 100;
+    remain -= zero * 100;
+
+    result += "5 번 이상 확률 합 : " + (remain).toStringAsFixed(3) + "%" + "\n";
+    result += "1 번 이상 확률 합 : " + (sum * 100 + remain).toStringAsFixed(3) + "%";
+    outputController.text = result;
   }
 
   //계산
   BigDecimal calculator(int n, double p, int r) {
     BigDecimal combi = combination(n, r);
     BigDecimal p1 = power(p, r);
+    //print("p1 : " + p1.toString());
     double percent = 1 - p;
     BigDecimal p2 = power(percent, n - r);
-
+    //print("p2 :" + p2.toString());
     BigDecimal result = combi;
     result = result * p1;
     result = result * p2;
@@ -129,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
               FilteringTextInputFormatter(RegExp('[0-9,.]'), allow: true),
             ],
             decoration: InputDecoration(
-              labelText: '확률 입력',
+              labelText: '확률 입력(%)',
             ),
           ),
         ),
@@ -140,6 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: TextField(
             controller: countController,
             keyboardType: TextInputType.number,
+            maxLength: 5,
             inputFormatters: [
               FilteringTextInputFormatter(RegExp('[0-9]'), allow: true),
             ],
@@ -158,6 +168,18 @@ class _MyHomePageState extends State<MyHomePage> {
               clickEvent();
             },
             child: const Text('계산'),
+          ),
+        ),
+        Container(
+          // 결과
+          width: 300,
+          padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+          child: TextField(
+            maxLines: 7,
+            enabled: false,
+            textAlign: TextAlign.left,
+            controller: outputController,
+            style: const TextStyle(fontSize: 18),
           ),
         ),
       ])),
