@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:big_decimal/big_decimal.dart';
+import '/common.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,10 +40,46 @@ class _MyHomePageState extends State<MyHomePage> {
   final ButtonStyle style =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
-  //클릭
+  bool validation(String rText, String nText) {
+    double r = 0.0;
+    int n = 0;
+
+    try {
+      r = double.parse(rText);
+    } on Exception {
+      Common.snackBar(context, "확률을 올바르게 입력해주세요.");
+      return false;
+    }
+
+    if (r > 100) {
+      Common.snackBar(context, "확률은 100을 넘을 수 없습니다.");
+      return false;
+    }
+
+    try {
+      n = int.parse(nText);
+    } on Exception {
+      Common.snackBar(context, "시행횟수를 올바르게 입력해주세요.");
+      return false;
+    }
+
+    return true;
+  }
+
+  //버튼 클릭 이벤트.
   void clickEvent() {
-    double r = double.parse(perCentController.text) * 0.01;
-    int n = int.parse(countController.text);
+    String rText = perCentController.text;
+    String nText = countController.text;
+
+    double r = 0.0;
+    int n = 0;
+
+    if (validation(rText, nText)) {
+      r = double.parse(rText) * 0.01;
+      n = int.parse(nText);
+    } else {
+      return;
+    }
 
     double sum = 0.0;
     double remain = 100.0;
@@ -82,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //BigDecimal => double 변환시 너무 큰 값은 변환이 안되기에
   //String으로 변환 후 자릿수를 잘라 처리한다.
   double makeDouble(String str) {
-    print("str : " + str);
+    //print("str : " + str);
     int index = str.indexOf(".");
     String head = str.substring(0, index);
     String tail = str.substring(index + 1, index + 4);
